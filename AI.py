@@ -103,7 +103,7 @@ class TicTacToe:
                     available_moves.append([r, c])
         return available_moves
 
-    def playerMove(self, r, c):
+    def playerMove(self, r, c): 
         self.board[r][c] = "X"
         return [r, c] 
 
@@ -111,30 +111,29 @@ class TicTacToe:
         available_moves = self.checkAvailableMove(self.board)
         best_score = float("-inf")
         best_move = (-1, -1)
-        curr_board = self.board
+        original_board = self.board
 
         for possible_move in available_moves: 
-            self.move(possible_move, "O")
-            new_board = self.board
-            score = self.calculate(possible_move, "O", 2, new_board) 
-            self.undo(curr_board)
+            self.move(possible_move, "O", self.board)
+            score = self.calculate(possible_move, "O", 2, self.board) 
+            self.undo(original_board)
 
             if score > best_score: 
                 best_score = score 
                 best_move = possible_move
-        print(best_move)
         r, c = best_move
         self.board[r][c] = "O"
         return [r, c]   
 
-    def calculate(self, move, turn, maximizer, board): 
+    def calculate(self, move, turn, board): 
         game_state = self.checkGameState(move, turn)
-        curr_board = board
+        original_board = board
         if game_state != gameState.playing: 
             if game_state == gameState.draw: 
                 return 0 
             else: 
-                return 1 if game_state == maximizer else -1 
+                return 1 if game_state == gameState.bot_win else -1
+            
             
         scores = []
         
@@ -144,12 +143,12 @@ class TicTacToe:
                 new_turn = "X"
             elif turn == "X": 
                 new_turn = "O"
-            self.move(possible_move, new_turn)
-            new_board = self.board
-            scores.append(self.calculate(possible_move, new_turn, maximizer, game))
-            self.undo(curr_board)
+            self.move(possible_move, new_turn, board)
+            scores.append(self.calculate(possible_move, new_turn, board))
+            self.undo(original_board)
+            
         print(scores)
-        if (turn == "O" and maximizer == 2): 
+        if (turn == "O" and game_state == gameState.bot_win): 
             return max(scores) 
         else: 
             return min(scores)
@@ -195,5 +194,5 @@ class TicTacToe:
             print()        
 
 game = TicTacToe(3)
-game.botMove()
+game.newGame(True)
 # game.renderBoard()
